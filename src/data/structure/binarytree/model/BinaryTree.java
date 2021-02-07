@@ -1,6 +1,6 @@
 package data.structure.binarytree.model;
 
-import java.util.Stack;
+import java.util.*;
 
 public class BinaryTree {
 
@@ -39,7 +39,7 @@ public class BinaryTree {
     }
 
     /**
-     * (递归)获取以某节点的树高
+     * (递归)获取以某节点的树高（DFS)
      * @param node
      * @return
      */
@@ -48,53 +48,48 @@ public class BinaryTree {
         if (node == null){
             return 0;//当前节点为null则树高为0
         }else{
-            int l = hight(node.getLeftChild());//递归获取左子树的树高
-            int r = hight(node.getRightChild());//递归获取右子树的树高
+            int l = hightRecursion(node.getLeftChild());//递归获取左子树的树高
+            int r = hightRecursion(node.getRightChild());//递归获取右子树的树高
             return l > r? (l+1) : (r+1);//左右子树高的为树高+自身这一层
         }
 
     }
 
     /**
-     * (非递归)获取以某节点的树高
+     * (非递归)获取以某节点的树高（BFS）
      * @param node
      * @return
      */
     public int hight(TreeNode node){
 
-        int treeHight = 0;
-        int maxHight = 0;
-
-
-        Stack<TreeNode> tempNode = new Stack<>();
         if (node == null){
             return 0;//当前节点为null则树高为0
-        }else{
-            while (node != null || !tempNode.isEmpty()){
-                while (node != null){
-                    treeHight++;
-                    tempNode.push(node);
-                    if (node.getLeftChild() == null){
-                        break;
-                    }
-                    node = node.getLeftChild();
+        }
+        int treeHight = 0;
+
+        Queue<TreeNode> tempNode = new LinkedList<>();
+        tempNode.offer(node);
+        while (!tempNode.isEmpty()){
+            int count = tempNode.size();
+            while (count > 0){
+                node = tempNode.poll();
+                if (node.getLeftChild() != null){
+                    tempNode.offer(node.getLeftChild());
                 }
-                if (treeHight > maxHight){
-                    maxHight = treeHight;
-                }
-                node = tempNode.pop();
                 if (node.getRightChild() != null){
-                    node = node.getRightChild();
-                }else {
-                    treeHight--;
-                    node = null;
+                    tempNode.offer(node.getRightChild());
                 }
-
-
+                count--;
             }
+            treeHight++;
 
         }
-        return maxHight;
+
+        Stack<List<Integer>> tempResult = new Stack<>();
+
+
+
+        return treeHight;
 
     }
 
@@ -163,6 +158,42 @@ public class BinaryTree {
         return getParent(root,node);
     }
 
+    /**
+     * 是否是平衡二叉树
+     * @param node
+     * @return
+     */
+    public  boolean isBalanced(TreeNode node){
+
+        int hight = higthForBalance(root);
+        if ( hight >= 0){
+            return true;
+        }
+        return false;
+
+    }
+
+    /**
+     * 自底向上判断，如果存在而左右子树树高相差大于1的则是不平衡，最后输出-1；如果是平衡的，则是正常树高>=0
+     * @param node
+     * @return
+     */
+    private int higthForBalance(TreeNode node){
+        if (node == null){
+            return 0;
+        }
+
+        int leftHight = higthForBalance(node.getLeftChild());
+        int rightHight = higthForBalance(node.getRightChild());
+
+        if (leftHight == -1 || rightHight == -1 || Math.abs(leftHight-rightHight) >1){
+            return -1;
+        }else {
+            return leftHight > rightHight ?(leftHight+1) : (rightHight+1);
+        }
+
+    }
+
     public TreeNode getRoot() {
         return root;
     }
@@ -170,5 +201,7 @@ public class BinaryTree {
     public void setRoot(TreeNode root) {
         this.root = root;
     }
+
+
 
 }
